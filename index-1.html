@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>Fusha Coach — Arabic Learning</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#f3f4f6;color:#111827}
+header{background:#111827;color:white;padding:18px 20px;position:sticky;top:0;z-index:5}
+.wrap{max-width:900px;margin:auto}.brand{font-weight:800;font-size:21px}.sub{opacity:.7;font-size:13px}
+main{padding:20px 14px 70px}.card{background:white;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 2px 12px #0000000d}
+h1,h2,h3{margin-top:0}.arabic{font-size:28px;direction:rtl;text-align:right;line-height:1.8}.trans{color:#6b7280}.btn{border:0;border-radius:12px;padding:12px 16px;background:#111827;color:#fff;font-weight:700;cursor:pointer;margin:4px}.btn.secondary{background:#e5e7eb;color:#111827}.btn.green{background:#166534}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}.stat{padding:14px;background:#f9fafb;border-radius:14px}.progress{height:10px;background:#e5e7eb;border-radius:10px;overflow:hidden}.bar{height:100%;background:#111827}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#e5e7eb;font-size:12px;margin:3px}
+input{padding:12px;border:1px solid #d1d5db;border-radius:10px;width:100%;font-size:16px}button:disabled{opacity:.45}
+.option{display:block;width:100%;text-align:left;margin:7px 0;padding:13px;border:1px solid #d1d5db;border-radius:12px;background:white;cursor:pointer}
+.option.correct{background:#dcfce7;border-color:#16a34a}.option.wrong{background:#fee2e2;border-color:#dc2626}
+.small{font-size:13px;color:#6b7280}.hide{display:none}
+nav{display:flex;gap:7px;overflow:auto;margin-bottom:14px}nav button{white-space:nowrap}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand">العربية الفصحى · Fusha Coach</div><div class="sub">Beginner → Fluent · 30 minutes a day</div></div></header>
+<main class="wrap" id="app"></main>
+<script>
+const lessons=[
+["Greetings & Your Name",["السَّلَامُ عَلَيْكُمْ","مَرْحَبًا","اسْم","أَنَا","مِنْ","شُكْرًا"],["as-salāmu ʿalaykum","marḥaban","ism","anā","min","shukran"],["peace / hello","hello","name","I","from","thank you"],"السَّلَامُ عَلَيْكُمْ. اسْمِي أَتِيك. أَنَا مِنْ بَنْغَلَادِيش."],
+["Pronouns",["أَنَا","أَنْتَ","أَنْتِ","هُوَ","هِيَ","نَحْنُ"],["anā","anta","anti","huwa","hiya","naḥnu"],["I","you (m.)","you (f.)","he","she","we"],"أَنَا طَالِبٌ. هُوَ طَالِبٌ. هِيَ طَالِبَةٌ."],
+["Basic Questions",["مَا","مَنْ","أَيْنَ","هَلْ","كَيْفَ","مَاذَا"],["mā","man","ayna","hal","kayfa","mādhā"],["what","who","where","is/are?","how","what"],"مَا اسْمُكَ؟ مِنْ أَيْنَ أَنْتَ؟ أَيْنَ تَسْكُنُ؟"],
+["Where You Live",["مَدِينَة","بَيْت","شَقَّة","جَامِعَة","أَسْكُنُ","أَدْرُسُ"],["madīna","bayt","shaqqa","jāmiʿa","askunu","adrusu"],["city","house","apartment","university","I live","I study"],"أَسْكُنُ فِي الرِّبَاطِ. أَدْرُسُ فِي الْجَامِعَةِ."],
+["Nationality & Languages",["بَنْغَلَادِيش","المَغْرِب","بَنْغْلَادِيشِيّ","عَرَبِيَّة","إِنْجِلِيزِيَّة","أَتَعَلَّمُ"],["Banghlādīsh","al-Maghrib","Banghlādīshiyy","ʿarabiyya","injīziyya","ataʿallamu"],["Bangladesh","Morocco","Bangladeshi","Arabic","English","I learn"],"أَنَا بَنْغْلَادِيشِيٌّ. أَتَكَلَّمُ الإِنْجِلِيزِيَّةَ وَأَتَعَلَّمُ الْعَرَبِيَّةَ."],
+["Complete Introduction",["طَالِب","لُغَة","صَدِيق","أَيْنَ","مَاذَا","اسْمِي"],["ṭālib","lugha","ṣadīq","ayna","mādhā","ismī"],["student","language","friend","where","what","my name"],"اسْمِي أَتِيك. أَنَا طَالِبٌ. أَسْكُنُ فِي الرِّبَاطِ."],
+["Family",["أَب","أُمّ","أَخ","أُخْت","أُسْرَة","عِنْدِي"],["ab","umm","akh","ukht","usra","ʿindī"],["father","mother","brother","sister","family","I have"],"هَذَا أَبِي. هَذِهِ أُمِّي. عِنْدِي أَخٌ."],
+["My Room & Things",["كِتَاب","قَلَم","هَاتِف","حَاسُوب","غُرْفَة","طَاوِلَة"],["kitāb","qalam","hātif","ḥāsūb","ghurfa","ṭāwila"],["book","pen","phone","computer","room","table"],"هَذَا كِتَابٌ. هَذِهِ طَاوِلَةٌ."],
+["Food & Drink",["مَاء","شَاي","قَهْوَة","خُبْز","أَرُزّ","أُرِيدُ","أُحِبُّ"],["māʾ","shāy","qahwa","khubz","aruzz","urīdu","uḥibbu"],["water","tea","coffee","bread","rice","I want","I like"],"أُرِيدُ مَاءً. أُحِبُّ الشَّايَ. لَا أُحِبُّ القَهْوَةَ."],
+["Daily Routine",["أَسْتَيْقِظُ","أَذْهَبُ","أَدْرُسُ","آكُلُ","أَشْرَبُ","أَنَامُ"],["astayqiẓu","adhhabu","adrusu","ākulu","ashrabu","anāmu"],["I wake","I go","I study","I eat","I drink","I sleep"],"أَسْتَيْقِظُ مُبَكِّرًا. أَذْهَبُ إِلَى الْجَامِعَةِ. أَدْرُسُ."],
+["Time",["اليَوْم","غَدًا","أَمْسِ","الآن","صَبَاحًا","مَسَاءً"],["al-yawm","ghadan","amsi","al-ān","ṣabāḥan","masāʾan"],["today","tomorrow","yesterday","now","morning","evening"],"اليَوْمُ أَدْرُسُ. غَدًا سَأَذْهَبُ. أَمْسِ دَرَسْتُ."],
+["Days of the Week",["السَّبْت","الأَحَد","الاثْنَيْن","الثُّلَاثَاء","الأَرْبِعَاء","الخَمِيس","الجُمُعَة"],["as-sabt","al-aḥad","al-ithnayn","ath-thulāthāʾ","al-arbiʿāʾ","al-khamīs","al-jumʿa"],["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"],"اليَوْمُ يَوْمُ الجُمُعَةِ."],
+["Question Words",["مَنْ","مَا","مَاذَا","أَيْنَ","مَتَى","كَيْفَ","لِمَاذَا","كَمْ"],["man","mā","mādhā","ayna","matā","kayfa","limādhā","kam"],["who","what","what","where","when","how","why","how much"],"مَتَى تَذْهَبُ؟ كَيْفَ حَالُكَ؟ لِمَاذَا تَدْرُسُ؟"],
+["Shopping",["سِعْر","مَال","غَالٍ","رَخِيص","مَحَلّ","كَمْ"],["siʿr","māl","ghālin","rakhīṣ","maḥall","kam"],["price","money","expensive","cheap","shop","how much"],"كَمْ هَذَا؟ أُرِيدُ هَذَا. هَلْ هُوَ غَالٍ؟"],
+["Directions",["يَمِين","يَسَار","أَمَام","خَلْف","قَرِيب","بَعِيد","شَارِع"],["yamīn","yasār","amām","khalf","qarīb","baʿīd","shāriʿ"],["right","left","in front","behind","near","far","street"],"أَيْنَ الْجَامِعَةُ؟ الْجَامِعَةُ أَمَامَ الْمَحَطَّةِ."],
+["Transportation",["حَافِلَة","قِطَار","سَيَّارَة","دَرَّاجَة","مَحَطَّة","تَذْكِرَة"],["ḥāfila","qiṭār","sayyāra","darrāja","maḥaṭṭa","tadhkira"],["bus","train","car","bicycle","station","ticket"],"أُرِيدُ تَذْكِرَةً إِلَى فَاس."],
+["University",["جَامِعَة","كُلِّيَّة","دَرْس","مَادَّة","امْتِحَان","أُسْتَاذ"],["jāmiʿa","kulliyya","dars","mādda","imtiḥān","ustādh"],["university","faculty","lesson","subject","exam","professor"],"أَدْرُسُ فِي الْجَامِعَةِ. عِنْدِي امْتِحَانٌ."],
+["Asking for Help",["لَا أَفْهَمُ","لَا أَعْرِفُ","أَعِدْ","بِبُطْءٍ","تُسَاعِدُنِي","يَعْنِي"],["lā afhamu","lā aʿrifu","aʿid","bibuṭʾ","tusāʿidunī","yaʿnī"],["I don't understand","I don't know","repeat","slowly","help me","means"],"لَا أَفْهَمُ. مِنْ فَضْلِكَ، تَكَلَّمْ بِبُطْءٍ."],
+["Masculine & Feminine",["طَالِب","طَالِبَة","كَبِير","كَبِيرَة","جَدِيد","جَدِيدَة"],["ṭālib","ṭāliba","kabīr","kabīra","jadīd","jadīda"],["male student","female student","big","big (f.)","new","new (f.)"],"طَالِبٌ كَبِيرٌ. طَالِبَةٌ جَدِيدَةٌ."],
+["Adjectives",["جَمِيل","جَمِيلَة","صَغِير","صَغِيرَة","سَرِيع","بَطِيء"],["jamīl","jamīla","ṣaghīr","ṣaghīra","sarīʿ","baṭīʾ"],["beautiful","beautiful (f.)","small","small (f.)","fast","slow"],"بَيْتٌ كَبِيرٌ. جَامِعَةٌ كَبِيرَةٌ."],
+["Possession",["كِتَابِي","كِتَابُكَ","كِتَابُهُ","كِتَابُهَا","بَيْتِي","صَدِيقِي"],["kitābī","kitābuka","kitābuhu","kitābuhā","baytī","ṣadīqī"],["my book","your book","his book","her book","my house","my friend"],"هَذَا كِتَابِي. هَذَا صَدِيقِي."],
+["Present Tense",["أَقْرَأُ","أَكْتُبُ","أَسْمَعُ","أَتَكَلَّمُ","أَذْهَبُ","أَرْجِعُ"],["aqraʾu","aktubu","asmaʿu","atakallamu","adhhabu","arjiʿu"],["I read","I write","I listen","I speak","I go","I return"],"أَقْرَأُ الْكِتَابَ. أَكْتُبُ وَأَتَكَلَّمُ."],
+["Past Tense",["ذَهَبْتُ","دَرَسْتُ","أَكَلْتُ","شَرِبْتُ","قَرَأْتُ","كَتَبْتُ"],["dhahabtu","darastu","akaltu","sharibtu","qaraʾtu","katabtu"],["I went","I studied","I ate","I drank","I read","I wrote"],"أَمْسِ ذَهَبْتُ إِلَى الْجَامِعَةِ. دَرَسْتُ ثُمَّ رَجَعْتُ."],
+["Yesterday Story",["أَمْسِ","مُبَكِّرًا","ثُمَّ","رَجَعْتُ","نِمْتُ","أَكَلْتُ"],["amsi","mubakkiran","thumma","rajaʿtu","nimtu","akaltu"],["yesterday","early","then","I returned","I slept","I ate"],"أَمْسِ اسْتَيْقَظْتُ مُبَكِّرًا. ذَهَبْتُ إِلَى الْجَامِعَةِ ثُمَّ رَجَعْتُ."],
+["Likes & Dislikes",["أُحِبُّ","لَا أُحِبُّ","أُفَضِّلُ","رِيَاضَة","فِيلْم","كِتَاب"],["uḥibbu","lā uḥibbu","ufaḍḍilu","riyāḍa","film","kitāb"],["I like","I don't like","I prefer","sport","film","book"],"أُحِبُّ الرِّيَاضَةَ. لَا أُحِبُّ الْقَهْوَةَ."],
+["Hobbies",["هِوَايَة","رِيَاضَة","كُرَةُ الْقَدَم","قِرَاءَة","سَفَر","رَكْبُ الدَّرَّاجَة"],["hiwāya","riyāḍa","football","qirāʾa","safar","riding a bicycle"],["hobby","sport","football","reading","travel","cycling"],"فِي وَقْتِ فَرَاغِي، أُحِبُّ رَكْبَ الدَّرَّاجَةِ."],
+["Opinions",["أَعْتَقِدُ","فِي رَأْيِي","أَظُنُّ","لِأَنَّ","مُهِمّ","مُمْتِع"],["aʿtaqidu","fī raʾyī","aẓunnu","li-anna","important","fun"],["I think","in my opinion","I suppose","because","important","fun"],"أَعْتَقِدُ أَنَّ التَّعَلُّمَ مُهِمٌّ لِأَنَّهُ مُمْتِعٌ."],
+["Future Plans",["سَأَذْهَبُ","سَأَدْرُسُ","سَأَقْرَأُ","سَأَزُورُ","غَدًا","القَادِم"],["sa-adhhabu","sa-adrusu","sa-aqraʾu","sa-azūru","ghadan","next"],["I will go","I will study","I will read","I will visit","tomorrow","next"],"غَدًا سَأَذْهَبُ إِلَى الْجَامِعَةِ."],
+["Problems & Requests",["لَا أَفْهَمُ","لَا أَعْرِفُ","أَعِدْ","تَكَلَّمْ","بِبُطْءٍ","هَلْ يُمْكِنُ"],["lā afhamu","lā aʿrifu","aʿid","takallam","bibuṭʾ","hal yumkinu"],["I don't understand","I don't know","repeat","speak","slowly","is it possible"],"هَلْ يُمْكِنُ أَنْ تُسَاعِدَنِي؟"],
+["Restaurant",["قَائِمَة","طَعَام","شَرَاب","حِسَاب","دَجَاج","أَرُزّ"],["qāʾima","ṭaʿām","sharāb","ḥisāb","dajāj","aruzz"],["menu","food","drink","bill","chicken","rice"],"أُرِيدُ دَجَاجًا وَأَرُزًّا، مِنْ فَضْلِكَ."],
+["University Conversation",["مَوْضُوع","مُحَاضَرَة","زَمِيل","مَشْرُوع","نَجَاح","صُعُوبَة"],["mawḍūʿ","muḥāḍara","classmate","project","success","difficulty"],["topic","lecture","classmate","project","success","difficulty"],"مَا مَوْضُوعُ الْمُحَاضَرَةِ الْيَوْمَ؟"],
+["Travel",["مَطَار","مَحَطَّة","تَذْكِرَة","يُغَادِرُ","وَصَلَ","رِحْلَة"],["maṭār","maḥaṭṭa","tadhkira","yughādiru","waṣala","riḥla"],["airport","station","ticket","leaves","arrived","trip"],"مَتَى يُغَادِرُ الْقِطَارُ؟"],
+["Culture & Countries",["بَلَد","ثَقَافَة","شَعْب","تَارِيخ","عَادَة","مُجْتَمَع"],["balad","thaqāfa","shaʿb","tārīkh","ʿāda","mujtamaʿ"],["country","culture","people","history","custom","society"],"فِي بَلَدِي عَادَاتٌ وَثَقَافَةٌ مُتَنَوِّعَةٌ."],
+["Listening & Shadowing",["اسْمَعْ","كَرِّرْ","جُمْلَة","كَلِمَة","مَعْنًى","فَهْم"],["ismaʿ","karrir","jumla","kalima","maʿnā","fahm"],["listen","repeat","sentence","word","meaning","understanding"],"اسْمَعْ ثُمَّ كَرِّرْ كُلَّ جُمْلَةٍ."],
+["Arabic-Only Challenge",["فَقَط","لَا تَسْتَخْدِمْ","صِفْ","شَيْء","ظَهْر","تَحَدَّثْ"],["faqaṭ","lā tastakhdim","ṣif","shayʾ","ẓahr","taḥaddath"],["only","don't use","describe","thing","back","speak"],"تَحَدَّثْ بِالْعَرَبِيَّةِ فَقَطْ."],
+["Final Review",["مُرَاجَعَة","اخْتِبَار","مُحَادَثَة","اسْتِمَاع","كَلَام","تَقَدُّم"],["murājaʿa","ikhtibār","muḥādatha","istimāʿ","kalām","taqaddum"],["review","test","conversation","listening","speech","progress"],"أَنَا أَتَعَلَّمُ الْعَرَبِيَّةَ وَأُرِيدُ أَنْ أَتَحَدَّثَ بِطَلَاقَةٍ."]
+];
+
+const exams=[
+{day:7,q:["What is 'my name'?","Where are you from?","What is 'student'?"],a:["اسْمِي","مِنْ أَيْنَ أَنْتَ؟","طَالِب"]},
+{day:14,q:["What is 'mother'?","What is 'I live'?","What is 'water'?"],a:["أُمّ","أَسْكُنُ","مَاء"]},
+{day:21,q:["How do you ask 'Where is the university?'","What is 'ticket'?","What is 'I don't understand'?"],a:["أَيْنَ الْجَامِعَةُ؟","تَذْكِرَة","لَا أَفْهَمُ"]},
+{day:28,q:["What is 'I went'?","What is 'yesterday'?","What is 'then'?"],a:["ذَهَبْتُ","أَمْسِ","ثُمَّ"]},
+{day:35,q:["What is 'I prefer'?","What is 'in my opinion'?","What is 'I will go'?"],a:["أُفَضِّلُ","فِي رَأْيِي","سَأَذْهَبُ"]},
+{day:42,q:["What is 'conversation'?","What is 'listening'?","What is 'progress'?"],a:["مُحَادَثَة","اسْتِمَاع","تَقَدُّم"]}
+];
+
+let state=JSON.parse(localStorage.getItem("fushaCoach")||'{"completed":[],"streak":0,"last":"","scores":{}}');
+function save(){localStorage.setItem("fushaCoach",JSON.stringify(state))}
+function render(){
+let done=state.completed.length, pct=Math.round(done/42*100);
+document.getElementById("app").innerHTML=`
+<nav><button class="btn" onclick="home()">Dashboard</button><button class="btn secondary" onclick="course()">Course</button><button class="btn secondary" onclick="vocab()">Vocabulary</button><button class="btn secondary" onclick="examMenu()">Exams</button></nav>
+<div id="view"></div>`;
+home();
+}
+function home(){
+document.getElementById("view").innerHTML=`
+<div class="card"><h1>Good evening, Atik 👋</h1><p>Your Fusha journey starts here.</p>
+<div class="progress"><div class="bar" style="width:${Math.round(state.completed.length/42*100)}%"></div></div>
+<p>${state.completed.length}/42 lessons completed · ${Math.round(state.completed.length/42*100)}%</p>
+<button class="btn green" onclick="lesson(${Math.min(42,state.completed.length+1)})">Continue Lesson</button></div>
+<div class="grid">
+<div class="stat"><b>Level</b><br>A1 Foundation</div><div class="stat"><b>Daily target</b><br>30 minutes</div><div class="stat"><b>Streak</b><br>${state.streak} days</div><div class="stat"><b>Exams</b><br>${Object.keys(state.scores).length}/6 passed</div>
+</div>
+<div class="card"><h2>Today's routine</h2><p>5 min review · 8 min listening · 10 min speaking · 5 min vocabulary · 2 min grammar</p></div>`;
+}
+function course(){
+document.getElementById("view").innerHTML='<div class="card"><h1>A1 Foundation · 42 Lessons</h1>'+lessons.map((l,i)=>`<button class="option" onclick="lesson(${i+1})"><b>${i+1}. ${l[0]}</b><br><span class="small">${state.completed.includes(i+1)?"✓ Completed":"30-minute lesson"}</span></button>`).join('')+'</div>';
+}
+function lesson(n){
+let l=lessons[n-1];
+document.getElementById("view").innerHTML=`
+<div class="card"><span class="pill">Lesson ${n}/42</span><h1>${l[0]}</h1><p>⏱️ 30 minutes · 🎯 Speaking + listening</p></div>
+<div class="card"><h2>1. Vocabulary</h2>${l[1].map((w,i)=>`<div class="grid"><div><div class="arabic">${w}</div><div class="trans">${l[2][i]}</div></div><div><b>${l[3][i]}</b></div></div><hr>`).join('')}</div>
+<div class="card"><h2>2. Speaking sentence</h2><div class="arabic">${l[4]}</div><button class="btn" onclick="speak(${JSON.stringify(l[4])})">🔊 Listen</button><p class="small">Listen twice, then repeat aloud five times.</p></div>
+<div class="card"><h2>3. Speaking challenge</h2><p>Speak for 1–3 minutes using today's vocabulary. Do not stop to correct every mistake.</p><button class="btn" onclick="startMic()">🎙️ Start speaking</button><p id="speech" class="small"></p></div>
+<div class="card"><h2>4. Quick check</h2><p>Type the Arabic word for <b>${l[3][0]}</b>:</p><input id="ans" placeholder="Type Arabic here"><button class="btn" onclick="check(${n})">Check</button><p id="result"></p></div>
+<div class="card"><button class="btn green" onclick="complete(${n})">✓ Complete Lesson</button></div>`;
+}
+function speak(t){speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang="ar-SA";u.rate=.8;speechSynthesis.speak(u)}
+function startMic(){
+let SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){document.getElementById("speech").textContent="Speech recognition is not supported in this browser. You can still complete the speaking exercise aloud.";return}
+let r=new SR();r.lang="ar-SA";r.interimResults=false;r.onresult=e=>document.getElementById("speech").textContent="You said: "+e.results[0][0].transcript;r.onerror=()=>document.getElementById("speech").textContent="Microphone recognition was unavailable.";r.start()
+}
+function check(n){
+let val=document.getElementById("ans").value.trim(), ok=val===lessons[n-1][1][0];
+document.getElementById("result").innerHTML=ok?"✅ Correct!":"❌ Try again. Hint: "+lessons[n-1][2][0];
+}
+function complete(n){
+if(!state.completed.includes(n)){state.completed.push(n);state.completed.sort((a,b)=>a-b);state.streak++}
+save(); alert("Lesson completed!"); render();
+}
+function examMenu(){
+document.getElementById("view").innerHTML='<div class="card"><h1>Exams</h1><p>Pass each checkpoint to measure your progress.</p>'+exams.map((e,i)=>`<button class="option" onclick="exam(${i})">🧪 Checkpoint ${i+1} — after Day ${e.day}<br><span class="small">${state.scores[e.day]!==undefined?"Score: "+state.scores[e.day]+"/3":"Not taken"}</span></button>`).join('')+'</div>';
+}
+function exam(i){
+let e=exams[i], q=e.q.map((x,j)=>`<div class="card"><b>${j+1}. ${x}</b><input id="q${j}" placeholder="Type Arabic answer"></div>`).join('');
+document.getElementById("view").innerHTML=`<div class="card"><h1>Checkpoint Exam</h1><p>Answer in Arabic. Spelling without harakāt is accepted where appropriate.</p>${q}<button class="btn green" onclick="grade(${i})">Submit Exam</button><p id="grade"></p></div>`;
+}
+function grade(i){
+let e=exams[i], score=0;e.q.forEach((_,j)=>{let x=document.getElementById("q"+j).value.trim().replace(/[ًٌٍَُِّْـ]/g,""),a=e.a[j].replace(/[ًٌٍَُِّْـ]/g,"");if(x===a)score++});
+state.scores[e.day]=score;save();document.getElementById("grade").innerHTML=`<h2>${score}/3</h2>${score===3?"🎉 Excellent — checkpoint passed.":"Review the relevant lessons and try again."}`;
+}
+function vocab(){
+let words=lessons.flatMap(l=>l[1]).slice(0,80);
+document.getElementById("view").innerHTML=`<div class="card"><h1>Vocabulary Bank</h1><p>${words.length} words from your completed A1 foundation.</p>${words.map((w,i)=>`<span class="pill" dir="rtl">${w}</span>`).join('')}</div>`;
+}
+render();
+</script>
+</body></html>
